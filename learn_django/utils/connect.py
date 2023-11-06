@@ -16,5 +16,7 @@ db_name = config.get("DB", "db_name")
 domain = config.get("DB", "domain")
 
 db_client = connect(
-    host=f"mongodb+srv://{mongo_user}:{mongodb_pass}@{domain}/{db_name}", ssl=True
+    host=f"mongodb+srv://{mongo_user}:{mongodb_pass}@{domain}/{db_name}",
+    ssl=True
 )
+

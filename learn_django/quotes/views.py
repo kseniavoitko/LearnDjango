@@ -4,8 +4,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.views import View
+from mongoengine.errors import NotUniqueError
 
-from utils import connect
 from utils.models import Authors, Qoutes
 
 from .forms import AuthorForm, QuoteForm
@@ -34,6 +34,7 @@ def add_author(request):
         form = AuthorForm(request.POST)
         if form.is_valid():
             form.save()
+            print(form.cleaned_data)
             fullname = form.cleaned_data["fullname"]
             messages.success(request, f"Author '{fullname}' was created...")
             return render(
@@ -86,8 +87,13 @@ class CreateAuthorView(LoginRequiredMixin, View):
         form = self.form_class(request.POST)
         if form.is_valid():
             form.save()
-            fullname = form.cleaned_data["fullname"]
-            messages.success(request, f"Author '{fullname}' was created...")
+            author = Authors(**form.cleaned_data)
+            try:
+                author.save()
+            except NotUniqueError:
+                messages.error(request, f"Author '{author.fullname}' already present in DB")
+            else:
+                messages.success(request, f"Author '{author.fullname}' was created...")
             return render(
                 request, self.template_name, context={"form": self.form_class}
             )
