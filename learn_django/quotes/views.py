@@ -29,26 +29,6 @@ def author(request, author: str):
 
 
 @login_required
-def add_author(request):
-    if request.method == "POST":
-        form = AuthorForm(request.POST)
-        if form.is_valid():
-            form.save()
-            print(form.cleaned_data)
-            fullname = form.cleaned_data["fullname"]
-            messages.success(request, f"Author '{fullname}' was created...")
-            return render(
-                request, "quotes/create_author.html", context={"form": AuthorForm()}
-            )
-        else:
-            messages.error(request, "Not added...")
-            return render(request, "quotes/create_author.html", context={"form": form})
-
-    context = {"form": AuthorForm()}
-    return render(request, "quotes/create_author.html", context)
-
-
-@login_required
 def create_quote(request, id: int = 0):
     authors = Authors.objects.all()
 
