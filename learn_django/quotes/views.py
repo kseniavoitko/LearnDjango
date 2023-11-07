@@ -5,6 +5,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.views import View
 from mongoengine.errors import NotUniqueError
+import random
 
 from utils.models import Authors, Qoutes
 
@@ -34,17 +35,11 @@ def create_quote(request, id: int = 0):
 
     if request.method == "POST":
         form = QuoteForm(request.POST)
-        print(request.POST)
         if form.is_valid():
             new_quote = form.save(commit=False)
-            new_quote.quote = form.cleaned_data["quote"]
-            new_quote.author = Authors.objects.filter(
-                pk=form.cleaned_data["author"]
-            ).get()
-            new_quote.save()
-            print(1)
+            quote = Qoutes(**form.cleaned_data, _id=generate_unique_id())
+            quote.save()
             messages.success(request, "Quote was added....")
-
         else:
             messages.error(request, "Not added....")
             return render(
@@ -67,11 +62,13 @@ class CreateAuthorView(LoginRequiredMixin, View):
         form = self.form_class(request.POST)
         if form.is_valid():
             form.save()
-            author = Authors(**form.cleaned_data)
+            author = Authors(**form.cleaned_data, _id=generate_unique_id())
             try:
                 author.save()
             except NotUniqueError:
-                messages.error(request, f"Author '{author.fullname}' already present in DB")
+                messages.error(
+                    request, f"Author '{author.fullname}' already present in DB"
+                )
             else:
                 messages.success(request, f"Author '{author.fullname}' was created...")
             return render(
@@ -80,3 +77,7 @@ class CreateAuthorView(LoginRequiredMixin, View):
         else:
             messages.error(request, "Not added...")
             return render(request, self.template_name, context={"form": form})
+
+
+def generate_unique_id():
+    return random.randint(1, 1000000)
