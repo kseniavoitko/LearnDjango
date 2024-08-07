@@ -18,6 +18,14 @@
 
     <div class="form_row">
         <div class="mb-3">
+            <label class="form-label"> Email:</label>
+            {{ form.email }}
+        </div>
+        <span>{{ form.errors.email }}</span>
+    </div>
+
+    <div class="form_row">
+        <div class="mb-3">
             <label class="form-label"> Password:</label>
             {{ form.password1 }}
             <span>{{ form.errors.password1 }}</span>
